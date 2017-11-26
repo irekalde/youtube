@@ -1,4 +1,5 @@
 Listado de los videos del tutorial de D3:
+
 Lista de reproducción en Youtube
 https://www.youtube.com/playlist?list=PLSYo3lNElfWgGi7KgFM1K7FEx-AoduefM
 
