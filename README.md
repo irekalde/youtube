@@ -32,3 +32,6 @@ https://youtu.be/y4q2gC-6XrY
 
 D3 Tutorial 05 Datos
 https://youtu.be/IxbHsK7h3G0
+
+D3 Tutorial 06 Escalas(I) y Gráfico de Barras
+https://youtu.be/7HJSb1h6Yb4
