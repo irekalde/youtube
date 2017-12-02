@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Selección 01</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+
+    <p>Primer párrafo</p>
+    <p>Segundo párrafo</p>
+    <p id="p3">Tercer párrafo</p>
+    <p id="p4">Cuarto párrafo</p>
+    <p id="p4">Cuarto párrafo Copia</p>
+    <p class="miclase">Quinto párrafo</p>
+    <p class="miclase">Sexto párrafo</p>
+
+    <table>
+    <tr>
+        <td>Fila 1 Col 1</td>
+        <td>Fila 1 Col 2</td>
+    </tr>
+    <tr>
+        <td>Fila 2 Col 1</td>
+        <td>FIla 2 Col 2</td>
+    </tr>
+    </table>
+
+    <script>
+    	/* Selecciona el primer párrafo */
+        d3.select("p").style("color", "green");
+        /* Selecciona el primer párrafo con id p4 */
+        d3.select("#p4").style("color", "red");
+        /* Selecciona todos los párrafos */
+        d3.selectAll("p").style("font-style", "italic");
+        /* Selecciona el primer párrafo con clase css miclase */
+        d3.select(".miclase").style("color", "violet");
+        /* Selecciona la primera columna y todas sus celdas */
+        d3.select("tr").selectAll("td").style('background-color','yellow');
+    </script>
+
+</body>
+</html>

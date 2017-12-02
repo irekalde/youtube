@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>06 Barras Escalas 01</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript">
+      // Definición de la función diagrama
+      function diagrama(){
+
+      // Declarar las variables del contenedor SVG	
+      	ancho = 600; // Ancho 600 px
+      	alto = 600;  // Alto 600 px
+      	margen = 50; // Cada margen 50 px
+      	dist_barras = 2; // Distancia entre barras 2 px
+
+      // Declarar los datos
+      	datos = [ 100, 500, 1000, 250, 2000, 1500 ]
+      
+      // Crear el contenedor SVG
+      // Crear Grupo dentro del contenedor y
+      // transladar el eje de cordenadas      
+      	var svg = d3.select("body")
+      				.append("svg")
+      				.attr("width", ancho)
+      				.attr("height", alto)
+					.append("g")
+                    .attr("transform", "translate( " + margen + "," + (alto - margen) + " )");
+
+      // Definir la escala Y
+      // domain es el intervalo de valores sin escalar
+      // range es el intervalo de valores escalado
+      // Cuidado es para v4 en v3 scale.linear()
+      	var escalaY = d3.scaleLinear()
+      					.domain([0, d3.max(datos)])
+      					.range([0, alto - 2 * margen]);
+      
+      // Crear las barras
+      	svg.selectAll("rect") // Seleccionamos el svg
+      	   .data(datos)		  // Presentamos los datos
+      	   .enter()			  // Seleccionamos los datos que no tienen objetos
+      	   .append("rect")	  // Añadimos los rectangulos 
+      	   .attr("x",  function (d, i) {
+      	   		return i * (( ancho - 2 * margen ) / datos.length); 
+      	   })				  // X calculamos el ancho automático en función
+      	   					  // del numero de valores y lo multiplicamos por la posición
+      	   .attr("y", function (d) {
+      	   		return -escalaY(d);
+      	   })				  // Calculamos la aplicandole la escala e invirtiendola
+      	   .attr("width", (( ancho - 2 * margen ) / datos.length) - dist_barras)
+      	   					  // Calculamos el ancho en función del numero de valores
+      	   .attr("height", function (d) {
+      	   		return escalaY(d); // Calculamos la altura aplicandole la escala
+      	   })
+      	   .attr("fill", "blue"); // Los pintamos de azul
+
+      // Añadir Texto a las barras
+      // Posicionadolo similarmente a las barras
+        svg.selectAll("text")
+           .data(datos)
+           .enter()
+           .append("text")
+           .text(function(d) {
+				return d;
+           })
+           .attr("text-anchor", "middle")
+           .attr("x", function(d, i) {
+				return i * (( ancho - 2 * margen ) / datos.length) + (( ancho - 2 * margen ) / datos.length) / 2;
+           })
+           .attr("y", function(d) {
+               return -escalaY(d) + 14;
+           })
+           .attr("font-family", "sans-serif")
+           .attr("font-size", "11px")
+           .attr("fill", "white");
+
+     }; 
+    </script>
+</head>
+<!-- Llamada al cargar body de la función diagrama -->
+<body onload="diagrama()">
+
+</body>
+</html>

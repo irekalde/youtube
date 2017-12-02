@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Selección 02</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
+    <style>
+        .error {
+            color: red ;
+        }
+    </style>
+</head>
+<body>
+        <p>Texto Original</p>
+	    <p>Segundo Texto</p>
+	    <p id="eliminar">Texto a eliminar</p>
+	    <p id="remplazar">Texto a remplazar</p>
+	    <div>
+	    	<p>Error: Error de prueba.</p>
+	    </div>
+	    <p id="azul">Texto Azul</p>
+	    <p id="rojo">Texto Error</p>
+    <script>
+    	// Obtener el texto del primer párrafo
+        Texto = d3.select("p").text();
+        // Modificar la variable
+        Texto = Texto + " Modificado";
+        // Establecer el texto en el primer párrafo
+        d3.select("p").text(Texto);
+        // Añadir un párrafo.
+        d3.select("body").append("p").text("Tercer párrafo");
+        // Insertar un párrafo.
+        d3.select("body").insert("p").text("Cuarto párrafo");
+        // Eliminar el párrafo con el id eliminar
+        d3.select("#eliminar").remove();
+        // Remplaza el texto dentro del html
+        d3.select("#remplazar").html("<span>Texto remplazado en HTML</span>");
+        // Asignar clase error
+        d3.select("div").select("p").attr("class","error");
+        // Asignar estilo Azul
+        d3.select("#azul").style("color", "blue")
+        // Asignar la clase error al id rojo
+        d3.select("#rojo").classed('error', true);
+    </script>
+</body>
+</html>

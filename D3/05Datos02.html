@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Datos 01</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript">
+      // Definición de la función
+      function redibujar(){ 
+      // Declaración de la matriz de datos
+        var misDatos = ["Primero ", "Segundo "];
+      // Redibujar los párrafos del tipo 1
+        var p1 = d3.select("body")
+                   .selectAll("p.tipo1")
+                   .data(misDatos)
+                   .text(function (d, i){
+                        texto_nuevo = d + i;
+                        return texto_nuevo;
+                    });
+      // Redibujar los párrafos del tipo 2
+      // Presentar datos a párrafos existentes 
+        var p2 = d3.select("body")
+                   .selectAll("p.tipo2")
+                   .data(misDatos);
+      // Cambiar el texto de los pérrafos existentes
+        var p2_act = p2.text(function (d, i){
+                              texto_nuevo = d + i;
+                              return texto_nuevo;});
+      // Eliminar los párrafos que no tienen texto 
+        var p2_borrar = p2.exit()
+                          .remove();
+      // Dibujar nuevos parrafos tipo 3
+        var p3 = d3.select("body")
+                   .selectAll("p.tipo3")
+                   .data(misDatos)
+                   .enter()
+                   .append("p")
+                   .attr("class", "tipo3")
+                   .text(function (d, i){
+                        texto_nuevo = d + i;
+                        return texto_nuevo;});                       
+     }; 
+    </script>
+</head>
+<body onload="redibujar()">
+
+  <H2>Párrafos Tipo 1</H2>
+  <p class="tipo1">Párrafo Uno del primer tipo</p>
+  <p class="tipo1">Párrafo Dos del primer tipo</p>
+  <p class="tipo1">Párrafo Tres del primer tipo</p> 
+
+  <H2>Párrafos Tipo 2</H2>
+  <p class="tipo2">Párrafo Uno del segundo tipo</p>
+  <p class="tipo2">Párrafo Dos del segundo tipo</p>
+  <p class="tipo2">Párrafo Tres del segundo tipo</p>  
+
+  <H2>Párrafos Tipo 3</H2>
+
+</body>
+</html>

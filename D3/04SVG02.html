@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG 02</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
+</head>
+<body>
+  <script>
+      // Definición variables SVG
+      var width = 500;
+      var height = 500;
+
+      // Crear contenedor SVG
+      var svg = d3.select("body")
+                  .append("svg")
+                  .attr("width", width)
+                  .attr("height", height);
+
+      // Crear elemento grupo dentro del contenedor
+      var g = svg.append("g")
+                 .attr("transform", "translate(250,50)");
+
+      // Crear Texto independiente dentro del contenedor
+      var solitario = svg.append("text")
+                         .attr("x", 0)
+                         .attr("y", 20)
+                         .attr("stroke", "blue")
+                         .text("Este es un texto solitario");
+
+      //Crear una elipse añadiendola al grupo
+      var elipse = g.append("ellipse")
+                    .attr("cx", 0)
+                    .attr("cy", 0)
+                    .attr("rx", 150)
+                    .attr("ry", 50);         
+
+      //Crear un texto añadiendole al grupo
+      g.append("text")
+       .attr("x", 0)
+       .attr("y", 0)
+       .attr("stroke", "white")
+       .text("Esto es una elipse");
+
+  </script>
+</body>
+</html>
