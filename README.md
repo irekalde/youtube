@@ -35,3 +35,9 @@ https://youtu.be/IxbHsK7h3G0
 
 D3 Tutorial 06 Escalas(I) y Gráfico de Barras
 https://youtu.be/7HJSb1h6Yb4
+
+D3 Tutorial 07 Escalas(II) y Ejes
+https://youtu.be/_XHJbm4p25U
+
+D3 Tutorial 08 Datos Externos y Lineas
+https://youtu.be/di3qVDKqGck
