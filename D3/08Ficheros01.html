@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>08 Ficheros 01</title>
+    <style> /* Estilo para la linea */
+		.linea {
+		  fill: none;
+		  stroke: steelblue;
+		  stroke-width: 2px;
+		}
+	</style>
+    <script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript">
+
+	  // Función para dibujar gráfico de barras
+		function grafico(){
+
+	  // Establecer Tamaño y margenes
+		var ancho_svg = 960,
+			alto_svg = 500,
+			margen = {sup: 20, dch: 20, izq: 30, inf: 50},
+    		ancho_graf = ancho_svg - margen.izq - margen.dch,
+    		alto_graf = alto_svg - margen.sup - margen.inf;
+
+
+      // Definir Escala para la cantidad de precipitaciones.
+      // De momento solo el rango porque para definir
+      // el dominio necesitamos los datos
+      	var escala_y = d3.scaleLinear()
+      					 .range([alto_graf, 0]);
+    					 
+
+      // Definir Escala para los meses.
+      // De momento solo el rango porque para definir
+      // el dominio necesitamos saber los meses :-)
+      	var escala_x = d3.scaleBand()
+      					 .rangeRound([0, ancho_graf]);	 
+
+      // Definir la linea y los valores x e y que va a tener
+    	var valorlinea = d3.line()
+      // El valor x viene determinado por la posición que ocupa cada mes.
+      // Llamar directamente a la escala nos daría la posición x donde comeienza cada mes.
+      // Step nos da el ancho de cada mes, por eso si le sumamos la mitad del ancho,
+      // nos queda en el centro de cada mes.
+    					   .x(function(d) { return (escala_x(d.Mes) + escala_x.step()/2); })
+      // El valor y lo sacamos de la cantiddad de lluvia que viene en la columna
+      // Precipitaciones una vez convertido mediante su escala.				   
+    					   .y(function(d) { return escala_y(d.Precipitaciones); });
+
+      // Definir y agregar el svg a la página
+	  // Agregar un grupo y trasladar el eje de coordenadas
+		var svg = d3.select("body").append("svg")
+    				.attr("width", ancho_svg)
+    				.attr("height", alto_svg)
+  					.append("g")
+    				.attr("transform",
+          			"translate(" + margen.izq + "," + margen.sup + ")");
+
+      // Obtener los datos de un csv con nombre de columnas Mes y Precipitaciones
+		d3.csv("https://raw.githubusercontent.com/irekalde/youtube/master/D3/lluvia.csv", function(d) {
+	  // Le indicamos que Precipitaciones es un numero
+	  // Le decimos que pase a mayusculas los meses
+  			d.Precipitaciones = +d.Precipitaciones;
+  			d.Mes = d.Mes.toUpperCase();
+  			return d;
+		}, function(error, datos) {
+  			if (error) throw error;
+  	  // Definir el dominio de la escala de los meses
+  	  // Lee los valores de la columna mes
+  		escala_x.domain(datos.map(function(d){ return d.Mes}));
+
+  	  // Definir el dominio de la escala de la lluvia
+  	  // que va de 0 al valor máximo contenido en la columna precipitaciones.
+  		escala_y.domain([0, d3.max(datos, function(d) {return d.Precipitaciones;})]);
+
+  	  // Definir el eje X de los meses
+  	        var eje_x = d3.axisBottom()
+                          .scale(escala_x);
+
+
+  	  // Definir el eje Y de las precipitaciones
+  	        var eje_y = d3.axisLeft()
+                          .scale(escala_y);
+
+      // Mostrar en consola para ver las diferencias.
+      	 console.log(datos);
+      	 console.log([datos]);
+
+	  // Crear el path y añadirle los valores
+	  // Añadirmos un elemento path al svg
+  		svg.append("path")
+  	  // Le presentamos los datos es necesario incluir cocrchetes
+      	   .data([datos])
+      // Le indicamos la clase para que le aplique el estilo definido.
+      	   .attr("class", "linea")
+      // Aqui le indicamos que va a ser una linea y sus valores.
+           .attr("d", valorlinea);
+
+      // Añadimos el eje x para ello creamos un grupo 
+          svg.append("g")      // Añadir un grupo para el eje
+           .attr("transform", "translate( 0 ," + alto_graf  + " )")
+                             // Desplazar el eje de coordenadas
+           .call(eje_x);      // Llamar el eje x
+ 
+      // Añadimos el eje y para ello creamos un grupo 
+          svg.append("g")      // Añadir un grupo para el eje
+           .attr("transform", "translate( 0 , 0 )")
+                             // No es necesarios desplazar el eje de coordenadas
+           .call(eje_y);      // Llamar el eje y
+
+  			});
+		};
+
+    </script>
+</head>
+<!-- Llamada al cargar body de la función diagrama -->
+<body onload="grafico()">
+
+</body>
+</html>
