@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>09 Tartas 01</title>
+
+    <style>
+    /* Estilo para el arco */
+    .arco path {
+      stroke: #fff;
+    }
+
+	  </style>
+    
+    <script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript" src="http://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script type="text/javascript">
+
+	  // Función para dibujar gráfico de barras
+		function grafico(){
+
+	    // Establecer Tamaño del lienzo, tamaño a ampliar el sector y radio.
+		    var ancho_svg = 960,
+			      alto_svg = 500,
+            ampliar = 50,
+            radio = ( Math.min(ancho_svg, alto_svg) / 2 ) - ampliar ;
+    					 
+      // Definir Escala para los colores.
+      // Previamente hemos cargado el modulo necesario.
+      // Consultar en https://github.com/d3/d3-scale-chromatic
+      // Existen multiples escalas cromáticas.
+        var color = d3.scaleOrdinal(d3.schemeSet3); 
+
+      // Definimos el arco
+        var arco = d3.arc()
+                     .outerRadius(radio)
+                     .innerRadius(0);
+
+        var arco_sel = d3.arc()
+                         .outerRadius(radio + ampliar)
+                         .innerRadius(ampliar);
+
+      // Definimos la tarta
+      // Esta función nos devuelve los datos necesarios para
+      // posteriormente dibujar con path.
+        var tarta = d3.pie()
+      //              .sort( null )
+                      .sort(function compare(a, b) {
+                              return b.Precipitaciones - a.Precipitaciones;})
+                      .value(function(d) { return d.Precipitaciones; });
+
+      // Definir y agregar el svg a la página
+  	  // Agregar un grupo y trasladar el eje de coordenadas
+      // donde va ir el centro de la tarta.
+		    var svg = d3.select("body").append("svg")
+    		        		.attr("width", ancho_svg)
+    			         	.attr("height", alto_svg)
+  				        	.append("g")
+    				        .attr("transform",
+          			          "translate(" + ancho_svg / 2 + "," + alto_svg / 2 + ")");
+
+      // Obtener los datos de un csv con nombre de columnas Mes y Precipitaciones
+		    d3.csv("https://raw.githubusercontent.com/irekalde/youtube/master/D3/lluvia.csv", function(d) {
+	    // Le indicamos que Precipitaciones es un numero
+  			     d.Precipitaciones = +d.Precipitaciones;
+  			     return d;
+		    }, function(error, datos) {
+  			   if (error) throw error;
+
+      // Mostrar en consola para ver los datos
+      	 console.log(datos);
+
+      // Al lienzo svg le presentamos los datos.
+      // Los datos que necesitamos nos lo da la función
+      // tarta que hemos definido anteriormente a la que
+      // le pasamos los datos.
+      // Generamos un grupo con la clase arco por cada sector.
+        var g_arco = svg.selectAll(".arco")
+                   .data(tarta(datos))
+                   .enter()
+                   .append("g")
+                   .attr("class", "arco");
+
+
+      // A cada grupo le añadimos el elemento path
+      // que es quien genera los sectores o arcos.
+      // Para ello le pasamos tres cosas:
+      // Con el atributo d le indicamos que es un arco,
+      // que ademas hemos definido su radio interior y
+      // exterior antes con la variable arco.
+      // Tambien le estamos pasando los angulos que calcula pie.
+      // Para el color usatemos la variable color,
+      // fijarnos que le llamamos con data por medio
+        g_arco.append("path")
+              .attr("d", arco)
+              .style("fill", function(d) { console.log(d); // Se muestra consola para ver la parte de data.
+                                           return color(d.data.Mes); })
+      // Al pasar el ratón por encima
+      // cambiar de arco y camiar el color
+              .on('mouseover', function(d){
+                console.log(d.data);
+                console.log(this);
+                d3.select(this).style('fill', 'steelblue');
+                d3.select(this) 
+                  .transition().duration(500)
+                  .attr("d", arco_sel);
+                })
+      // Al salir el ratón de la zona
+      // volver al arco y la color original
+              .on('mouseout', function(d){
+                d3.select(this).style('fill', color(d.data.Mes));
+                d3.select(this) 
+                  .transition().duration(500)
+                  .attr("d", arco);
+              });
+
+  			});
+		};
+
+    </script>
+</head>
+<!-- Llamada al cargar body de la función diagrama -->
+<body onload="grafico()">
+
+</body>
+</html>
