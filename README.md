@@ -41,3 +41,6 @@ https://youtu.be/_XHJbm4p25U
 
 D3 Tutorial 08 Datos Externos y Lineas
 https://youtu.be/di3qVDKqGck
+
+D3 Tutorial 09 Arcos y Tartas
+https://youtu.be/F99ro3Ad6oM
