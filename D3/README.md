@@ -29,3 +29,6 @@ https://youtu.be/di3qVDKqGck
 
 D3 Tutorial 09 Arcos y Tartas
 https://youtu.be/F99ro3Ad6oM
+
+D3 Tutorial 10 Barras Apiladas y Ordenar datos
+https://youtu.be/5fy1vrcvEd8
