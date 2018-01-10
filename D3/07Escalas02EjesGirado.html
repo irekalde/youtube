@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>07 Escalas 02 y Ejes</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript">
+      // Definición de la función diagrama
+      function diagrama(){
+
+      // Declarar las variables del contenedor SVG	
+      	ancho = 900; // Ancho 600 px
+      	alto = 600;  // Alto 600 px
+      	margen= 75; // Cada margen 50 px
+      	dist_barras = 2; // Distancia entre barras 2 px
+
+      // Declarar los datos
+      	datos = [ ["Enero", 97.5], ["Febrero", 277], ["Marzo", 208.5], ["Abril", 55.9],
+         ["Mayo", 42.8], ["Junio", 40.6], ["Julio", 37.9], ["Agosto", 4.4], ["Septiembre", 95],
+          ["Octubre", 11.3], ["Noviembre", 179.9], ["Diciembre", 39.2] ];
+      // Declarar los colores
+        colores = ["#335EFF", "#6E33FF", "#D433FF", "#FF33C4", "#FF335E", "#FF6E33", 
+        "#335EFF", "#6E33FF", "#D433FF", "#FF33C4", "#FF335E", "#FF6E33"];
+      
+      // Crear el contenedor SVG    
+      	var svg = d3.select("body")
+      				.append("svg")
+      				.attr("width", ancho)
+      				.attr("height", alto);
+
+      // Definir la escala X Escala Lineal
+      // domain es el intervalo de valores sin escalar
+      // Para calcular el valor maximo usamos d3.max
+      // y como datos es una matriz con dos columnas 
+      // empleamos d[1] para referirnos a los valores de lluvia
+      // d[0] son los meses.
+      // range es el intervalo de valores escalado
+      // los pixeles sobre los que vamos a dibujarlo.
+
+      //  var escala_X = d3.scaleLinear()
+      //          .domain([0, d3.max(datos, function(d) {return d[1];})])
+      //          .range([0, ancho - 2 * margen]);
+
+      // Ahora al girarlo lo que estaba en el eje x
+      // la cantidad de precipitaciones va en el eje y
+      // por eso renombro la escala y remplazo el alto
+      // por el ancho e invertimos el rango
+
+        var escala_Y = d3.scaleLinear()
+                .domain([0, d3.max(datos, function(d) {return d[1];})])
+                .range([alto - 2 * margen, 0]);
+
+
+      // Definir la escala Y Escala de Banda
+      // domain es el intervalo de valores sin escalar
+      // en este caso son los meses
+      // range es el intervalo de valores escalado
+      // el numero de pixeles donde se dibuja
+
+      //	var escala_Y = d3.scaleBand()
+      //          .domain(datos.map(function(d){ return d[0]}))
+      //					.rangeRound([0, alto - 2 * margen])
+      //          .paddingInner(0.05);
+
+      // Ahora al girarlo lo que estaba en el eje y
+      // los meses van en el eje x por eso renombro la escala 
+      // y remplazo el ancho por el alto
+
+        var escala_X = d3.scaleBand()
+                .domain(datos.map(function(d){ return d[0]}))
+                .rangeRound([0, ancho - 2 * margen])
+                .paddingInner(0.05);
+
+
+      // Dejado a proposito para ver como mostrar los valores en la consola
+      //  console.log("Dominio " + escala_Y.domain());
+      //  console.log("Rango " + escala_Y.range());
+      //  console.log("Bandwidth " + escala_Y.bandwidth());
+
+      // Definir la escala Z Escala Ordinal
+      // A cada mes se le asigna un color
+      // Dominio los meses
+      // Rango los colores
+         var escala_Z = d3.scaleOrdinal()
+                .domain(datos.map(function(d){ return d[0]}))
+                .range(colores.map(function(d){ return d;}));
+      
+      // Crear las barras
+      // Para girarlo, se comentan las lineas originales
+      // y se añade el código nuevo con las modificaciones
+        svg.append("g")       // Se crea un grupo para las barras
+      //       .attr("transform", "translate( " + margen + "," + margen + " )")
+      //  Ahora las barras comienzan desde abajo por eso trasladamos el grupo a otro punto
+           .attr("transform", "translate( " + margen + "," + margen + " )")
+      	   .selectAll("rect") // Se traslada el eje de coordenadas
+      	   .data(datos)		    // Presentamos los datos
+      	   .enter()			      // Seleccionamos los datos que no tienen objetos
+      	   .append("rect")	  // Añadimos los rectangulos 
+      //     .attr("x", 0)      // Las barras comienzan en x = 0
+           .attr("x", function (d,i) {     // Ahora x es lo que antes era y
+               return i * escala_X.step();
+            })                // La posición x se aumenta el ancho de cada barra           
+      //     .attr("y", function (d,i) {
+      //        return i * escala_Y.step();
+      //      })                // La posición y se aumenta el ancho de cada barra
+           .attr("y", function(d) {    // La altura es el valor de la precipitación
+              return  escala_Y(d[1]);       // Como hemos invertido el eje nos da
+           })                               // el punto superior de la barra.
+      //     .attr("width", function (d) {
+      //        return escala_X(d[1]);
+      //     })                 // La longitud es la cantidad de lluvia escalada
+           .attr("width", function (d) {   // El ancho ahora se calcula con
+              return escala_X.bandwidth(); // la escala de x
+           })
+      //     .attr("height", function (d) {
+      //        return escala_Y.bandwidth();
+            .attr("height", function(d) {    // La altura es el valor de la precipitación
+              return  (alto - 2 * margen) - escala_Y(d[1]);       // Al haber invertido el eje
+           })                                // Es la resta del resto de la escala.
+      //     })                 // La anchura de la barra se calcula con la escala
+           .attr("fill", function(d) {
+              return escala_Z(d[0]);
+           });                // Con la Escala Z mapeamos el color a cada barra
+
+
+      // Definir eje X y asignarle su escala
+      // Eje inferior en base a la escala escala_X
+      // Asignamos el numero de divisiones
+      //  var eje_X = d3.axisBottom()
+      //                .scale(escala_X)
+      //                .tickValues(d3.range( 0, d3.max(datos, function(d) {return d[1];}), 20 ));
+        var eje_X = d3.axisBottom()
+                      .scale(escala_X);
+      //                .tickValues(d3.range( 0, d3.max(datos, function(d) {return d[1];}), 20 ));
+
+      // Insertar el eje Horizontal
+        svg.append("g")      // Añadir un grupo para el eje
+           .attr("transform", "translate( " + margen + "," + (alto - margen) + " )")
+                             // Desplazar el eje de coordenadas
+           .call(eje_X)      // Llamar el eje X
+           .append("text")   // Añadirle una leyenda
+           .attr("font-family", "sans-serif")
+           .attr("font-size", 14)
+           .attr("text-anchor", "middle")
+           .attr("x", (ancho/2) - margen)
+           .attr("y", 40)
+           .attr("fill", "blue")
+           .text("Precipitaciones Bilbao 2016");
+
+      // Definir eje Y y asignarle su escala
+      // Eje Vertical Izquierdo en base a la escala_Y
+        var eje_Y = d3.axisLeft()
+                      .scale(escala_Y);
+
+      // Insertar el eje Vertical
+        svg.append("g")     // Añadir un grupo para el eje
+           .attr("transform", "translate( " + margen + "," + margen + " )")
+                            // Desplazar el eje de coordenadas
+           .call(eje_Y);    // Llamar el eje Y
+       
+      //  svg.append("g")     // Añadir un grupo para el eje
+      //     .attr("transform", "translate( " + margen + "," + margen + " )")
+      //                      // Desplazar el eje de coordenadas
+      //     .call(eje_Y);    // Llamar el eje Y
+     };
+    </script>
+</head>
+<!-- Llamada al cargar body de la función diagrama -->
+<body onload="diagrama()">
+
+</body>
+</html>
