@@ -1,3 +1,5 @@
+Notas y comandos que empleé para generar el video.
+
 https://docs.mongodb.com/manual/tutorial/deploy-sharded-cluster-with-keyfile-access-control/
 
 Para este caso vamos a utilizar como metodo de autenticación un fichero con una clave generada a mano (keyfile).
