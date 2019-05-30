@@ -1,0 +1,159 @@
+https://docs.mongodb.com/manual/tutorial/deploy-sharded-cluster-with-keyfile-access-control/
+
+Para este caso vamos a utilizar como metodo de autenticación un fichero con una clave generada a mano (keyfile).
+
+Generar el archivo keyfile (entre 6 y 1024 caracteres).
+
+Copiar el fichero a todos los nodos.
+
+***************
+Generar el Replica Set de los Config Server
+***************
+
+Se generan los 3 ficheros de configuracion de los Config Servers
+cfgsvr1.cfg cfgsvr2.cfg cfgsvr3.cfg
+Puertos: 28017 28117 28217
+
+Se inician los 3 Config Servers
+mongod --config cfgsvr1.cfg --install --serviceName
+mongod --config "C:\Program Files\MongoDB\Server\3.4\etc\cfgsvr1.cfg" --install --serviceName Mongocfgsvr1 --serviceDisplayName "MongoDB Config Server 1"
+mongod --config "C:\Program Files\MongoDB\Server\3.4\etc\cfgsvr2.cfg" --install --serviceName Mongocfgsvr2 --serviceDisplayName "MongoDB Config Server 2"
+mongod --config "C:\Program Files\MongoDB\Server\3.4\etc\cfgsvr3.cfg" --install --serviceName Mongocfgsvr3 --serviceDisplayName "MongoDB Config Server 3"
+
+
+Conectarse al interface localhost de uno de los config servers para inicializar el replica set de los config servers
+
+rs.initiate(
+  {
+    _id: "replicaConfSvr",
+    configsvr: true,
+    members: [
+      { _id : 0, host : "localhost:28017" },
+      { _id : 1, host : "localhost:28117" },
+      { _id : 2, host : "localhost:28217" }
+    ]
+  }
+)
+
+***************
+Generar el Primer Shard Replica Set
+***************
+Tienen que tener el fichero keyfile accesible
+Se generan los ficheros de configuración uno de los parametros importantes es el sharding.clusterRole
+shard1pri.cfg shard1sec.cfg shard1arb.cfg
+Puertos: 29017 29117 29217
+
+Se inician los 3 Servers del Shard1
+mongod --config "C:\Program Files\MongoDB\Server\3.4\etc\shard1pri.cfg" --install --serviceName Mongosh1pri --serviceDisplayName "MongoDB Shard 1 Primary"
+mongod --config "C:\Program Files\MongoDB\Server\3.4\etc\shard1sec.cfg" --install --serviceName Mongosh1sec --serviceDisplayName "MongoDB Shard 1 Secondary"
+mongod --config "C:\Program Files\MongoDB\Server\3.4\etc\shard1arb.cfg" --install --serviceName Mongosh1arb --serviceDisplayName "MongoDB Shard 1 Arbiter"
+
+
+Conectarse al interface localhost de uno de los servers del shard1 para inicializar el replica set de este shard.
+Con esta configuraci�n he querido forzar cual es el primario por defecto, cual el secundario y cual es arbitro.
+
+rs.initiate(
+  {
+    _id: "replicaShard1",
+    members: [
+      { _id : 0, host : "localhost:29017", priority : 20 },
+      { _id : 1, host : "localhost:29117", priority : 10 },
+      { _id : 2, host : "localhost:29217", arbiterOnly : true }
+    ]
+  }
+)
+
+
+***************
+Generar el Segundo Shard Replica Set
+***************
+No realizado aun
+***************
+Tienen que tener el fichero keyfile accesible
+Se generan los ficheros de configuraci�n uno de los parametros importantes es el sharding.clusterRole
+shard2pri.cfg shard2sec.cfg shard2arb.cfg
+Puertos: 29317 29417 29517
+
+Se inician los 3 Servers del Shard1
+mongod --config shard2pri.cfg
+mongod --config shard2sec.cfg
+mongod --config shard2arb.cfg
+
+Conectarse al interface localhost de uno de los servers del shard2 para inicializar el replica set de este shard.
+Con esta configuraci�n he querido forzar cual es el primario por defecto, cual el secundario y cual es arbitro.
+
+rs.initiate(
+  {
+    _id: "replicaShard1",
+    members: [
+      { _id : 0, host : "localhost:29317", priority : 20 },
+      { _id : 1, host : "localhost:29417", priority : 10 },
+      { _id : 2, host : "localhost:29517", arbiterOnly : true }
+    ]
+  }
+)
+
+
+*****************
+Configurar los routers
+*****************
+Tienen que tener el fichero keyfile accesible
+Generar el fichero de configuración del router router1.cfg
+Arrancar el mongos
+mongos --config router1.cfg
+Conectarse al interface localhost del router
+
+
+admin = db.getSiblingDB("admin")
+admin.createUser(
+  {
+    user: "admin",
+    pwd: "Password1",
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" }, { role: "clusterAdmin", db: "admin" }, { role: "readAnyDatabase", db: "admin" }, { role: "readWriteAnyDatabase", db: "admin" }, { role: "userAdminAnyDatabase", db: "admin" } ]
+  }
+)
+
+Autenticarse
+
+db.getSiblingDB("admin").auth("admin", "Password1" )
+
+Alternatively, connect a new mongo shell to the target replica set member using the -u <username>, -p <password>, and the --authenticationDatabase "admin" parameters. You must use the Localhost Exception to connect to the mongos.
+
+mongo -u "fred" -p "changeme1" --authenticationDatabase "admin"
+
+
+************************
+Añadir Shards al cluster
+************************
+
+To proceed, you must be connected to the mongos and authenticated as the cluster administrator user for the sharded cluster.
+
+sh.addShard( "replicaShard1/localhost:29017")
+
+***********************
+Enable Sharding for a Database
+
+To proceed, you must be connected to the mongos and authenticated as the cluster administrator user for the sharded cluster.
+
+NOTE
+This is the cluster administrator for the sharded cluster and not the shard-local cluster administrator.
+Enabling sharding on a database makes it possible to shard collections within the database. Use the sh.enableSharding() method to enable sharding on the target database.
+
+sh.enableSharding("<database>")
+Shard a Collection
+
+To proceed, you must be connected to the mongos and authenticated as the cluster administrator user for the sharded cluster.
+
+NOTE
+This is the cluster administrator for the sharded cluster and not the shard-local cluster administrator.
+To shard a collection, use the sh.shardCollection() method. You must specify the full namespace of the collection and a document containing the shard key.
+
+Your selection of shard key affects the efficiency of sharding, as well as your ability to take advantage of certain sharding features such as zones. See the selection considerations listed in the Choosing a Shard Key.
+
+If the collection already contains data, you must create an index on the shard key using the db.collection.createIndex() method before using shardCollection().
+
+If the collection is empty, MongoDB creates the index as part of sh.shardCollection().
+
+The following is an example of the sh.shardCollection() method:
+
+sh.shardCollect
